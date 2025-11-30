@@ -2,7 +2,7 @@ import time
 balance = 0
 counter_spam = 0
 max_spam = 3
-
+pin = 301
 
 def main():
     global counter_spam
@@ -39,8 +39,9 @@ def main():
                     withdraw(amount)
                 elif choice_convert == 4:
                     print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
+                    break
             else :
-                print("Pilihan tidak valid. Silahkan coba lagi.")
+                print("❌ Pilihan tidak valid. Silahkan coba lagi.")
                 counter_spam += 1
                 print(f"Peringatan Spam {counter_spam}/{max_spam}")
                 time.sleep (0.8)
@@ -53,6 +54,7 @@ def main():
             print("❌ Input tidak valid. Kamu harus memasukkan angka.")
             counter_spam += 1
             print(f"Peringatan Spam: {counter_spam}/{max_spam}")
+            time.sleep (0.8)
 
             if counter_spam >= max_spam:
                 print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")    
@@ -61,6 +63,32 @@ def main():
         except Exception as e:
             print(f"⚠️ Terjadi kesalahan tak terduga: {e}")
             break
+
+
+def login():
+    global pin
+    chance = 1
+    max_chance = 3
+    while (chance <= max_chance):
+        try:
+            print(f"\n--- Percobaan Login ke-{chance} dari {max_chance} ---")
+            password = input(f"Masukkan PIN ATM kamu :")
+            password_angka = int(password)
+            if password_angka == pin:
+                print (f"Login Berhasil Masbroo")
+                time.sleep(0.7)
+                return True
+            else:
+                print (f"❌ Pin yang kamu masukkan salah")
+                chance += 1
+
+        except ValueError:
+            print("❌ Input tidak valid. Kamu harus memasukkan angka.")
+            chance += 1
+
+            if chance > max_chance:
+                print (f"Anda telah melakukan percobaan {max_chance} kali, coba ulangi beberapa saat lagi")    
+                break    
 
 def check_balance():
     print(f"Saldo Anda saat ini adalah: {balance}")
@@ -87,4 +115,5 @@ def withdraw(amount):
 
 # --- Menjalankan Program ---
 if __name__ == "__main__":
-    main()
+    if login():
+        main()
