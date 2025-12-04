@@ -1,15 +1,33 @@
 import time
+import json
+
+file_json = 'user.json'
+
+try:
+    with open (file_json, 'r') as file:
+        data_user = json.load(file)
+
+        username = data_user['nama']
+        account = data_user["akun_bank"]
+        pin = data_user["pin"]
+        balance = data_user["balance"]
+
+except FileNotFoundError:
+    print(f"Error: File '{file_json}' tidak ditemukan. Pastikan file ada.")
+    exit()
+except json.JSONDecodeError:
+    print(f"Error: Format File '{file_json}' salah ")
+
 balance = 0
 counter_spam = 0
 max_spam = 3
-pin = 301
 
 def main():
     global counter_spam
-    print(""" 
-    ========================================|
-    Selamat Datang di Simulasi ATM SEDERHANA|
-    ========================================|
+    print(f""" 
+========================================|
+Selamat Datang di Simulasi ATM Sederhana|
+========================================|
     
 
 """)
@@ -66,20 +84,24 @@ def main():
 
 
 def login():
-    global pin
     chance = 1
     max_chance = 3
     while (chance <= max_chance):
         try:
             print(f"\n--- Percobaan Login ke-{chance} dari {max_chance} ---")
-            password = input(f"Masukkan PIN ATM kamu :")
+            print(f"""
+Halo {username}, Selamat datang di Simulasi ATM SDERHANAAAAA!!!!
+""")
+            account_input = input(f"Masukkan Akun Bank kamu (12 digit) : ")
+            password = input(f"Masukkan PIN ATM kamu (6 digit) : ")
+            account_angka = int(account_input)
             password_angka = int(password)
-            if password_angka == pin:
-                print (f"Login Berhasil Masbroo")
+            if password_angka == pin and account_angka == account :
+                print (f"Login Berhasil Selamat datang {username}")
                 time.sleep(0.7)
                 return True
             else:
-                print (f"❌ Pin yang kamu masukkan salah")
+                print (f"❌ account atau pin yang kamu masukkan salah")
                 chance += 1
 
         except ValueError:
