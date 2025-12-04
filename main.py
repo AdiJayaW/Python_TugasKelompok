@@ -90,7 +90,8 @@ def login():
         try:
             print(f"\n--- Percobaan Login ke-{chance} dari {max_chance} ---")
             print(f"""
-Halo {username}, Selamat datang di Simulasi ATM SDERHANAAAAA!!!!
+"Selamat Pagi", Selamat datang di Simulasi ATM SDERHANAAAAA!!!!
+Silahkan masukkan akun bank beserta pinnya 
 """)
             account_input = input(f"Masukkan Akun Bank kamu (12 digit) : ")
             password = input(f"Masukkan PIN ATM kamu (6 digit) : ")
@@ -113,29 +114,41 @@ Halo {username}, Selamat datang di Simulasi ATM SDERHANAAAAA!!!!
                 break    
 
 def check_balance():
-    print(f"Saldo Anda saat ini adalah: {balance}")
+    convert_balance = convert_uang(balance)
+    print(f"Saldo Anda saat ini adalah: {convert_balance}")
     time.sleep(2)
 
 def deposit(amount):
     global balance
     if amount > 0:
         balance += amount
-        print(f"Setor Tunai: {amount}. Update Saldo: {balance}")
+        convert_amount = convert_uang(amount)
+        convert_balance = convert_uang(balance)
+        print(f"Setor Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Deposit Gagal. Jumlah harus lebih dari 0.")
     time.sleep(1.8)
+
 
 def withdraw(amount):
     global balance 
     if 0 < amount <= balance :
         balance -= amount
-        print(f"Tarik Tunai: {amount}. Update Saldo: {balance}")
+        convert_amount = convert_uang(amount)
+        convert_balance = convert_uang(balance)
+        print(f"Tarik Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
     time.sleep(1.8)
 
+def convert_uang(angka):
+    global balance
+    hasil_awal = f"Rp {angka:,.0f}"
+    hasil_akhir = hasil_awal.replace(',', '.')
+
+    return hasil_akhir
 
 # --- Menjalankan Program ---
 if __name__ == "__main__":
-    if login():
+    # if login():
         main()
