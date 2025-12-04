@@ -1,35 +1,27 @@
 import time
 import json
+import os
 
 file_json = 'user.json'
 
-try:
-    with open (file_json, 'r') as file:
-        data_user = json.load(file)
+def load_data():
+    if not os.path.exists(file_json):
+        return []
+    try:
+        with open (file_json, 'r') as file:
+            return json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return []
 
-        username = data_user['nama']
-        account = data_user["akun_bank"]
-        pin = data_user["pin"]
-        balance = data_user["balance"]
+    
 
-except FileNotFoundError:
-    print(f"Error: File '{file_json}' tidak ditemukan. Pastikan file ada.")
-    exit()
-except json.JSONDecodeError:
-    print(f"Error: Format File '{file_json}' salah ")
-
-balance = 0
-counter_spam = 0
-max_spam = 3
-
-def main():
-    global counter_spam
+def main_menu(current_user, database_users):
+    counter_spam = 0
+    max_spam = 3
     print(f""" 
 ========================================|
 Selamat Datang di Simulasi ATM Sederhana|
 ========================================|
-    
-
 """)
     while True:
         print("\nMenu:")
@@ -48,7 +40,7 @@ Selamat Datang di Simulasi ATM Sederhana|
                 counter_spam = 0
 
                 if choice_convert == 1: #jika pilih angka "1", maka akan masuk ke fungsi check_balance
-                    check_balance()
+                    check_balance(current_user, database_users)
                 elif choice_convert == 2: #jika pilih angka "2", maka bisa memasukkan nilai ke variabel amount, lalu nilai tersebut dibuat parameter, ketika fungsi deposit dijalankan.
                     amount = int(input("Masukkan jumlah yang akan disetorkan dalam bentuk rupiah: "))
                     deposit(amount)
@@ -83,43 +75,57 @@ Selamat Datang di Simulasi ATM Sederhana|
             break
 
 
-def login():
+def login(database_user):
     chance = 1
     max_chance = 3
+
     while (chance <= max_chance):
+
         try:
             print(f"\n--- Percobaan Login ke-{chance} dari {max_chance} ---")
             print(f"""
 "Selamat Pagi", Selamat datang di Simulasi ATM SDERHANAAAAA!!!!
-Silahkan masukkan akun bank beserta pinnya 
+
+Silahkan Masukkan Akun Bank Beserta Pinnya 
 """)
-            account_input = input(f"Masukkan Akun Bank kamu (12 digit) : ")
-            password = input(f"Masukkan PIN ATM kamu (6 digit) : ")
+    
+            account_input = input(f"Masukkan Akun Bank kamu (3 digit) : ")
+            if len(account_input) != 3:
+                print (f"Format Salah Akun Bank harus 3 digit")
+                time.sleep(0.8)
+                continue
+
+            password = input(f"Masukkan PIN ATM kamu (6 digit) : ")       
+            if len(password) != 6:
+                print (f"Format Salah Akun Bank harus 3 digit")
+                time.sleep(0.8)
+                continue 
+
             account_angka = int(account_input)
             password_angka = int(password)
-            if password_angka == pin and account_angka == account :
-                print (f"Login Berhasil Selamat datang {username}")
-                time.sleep(0.7)
-                return True
-            else:
-                print (f"❌ account atau pin yang kamu masukkan salah")
-                chance += 1
+
+            for user in database_user:
+                if user['akun_bank'] == account_angka and user['pin'] == password_angka:
+                    print (f"\nLogin Berhasil Selamat datang {user['nama']}")
+                    time.sleep(0.9)
+                    return user
+            print("Akun atau Pin yang Anda masukkan salah, coba lagi")
+            chance += 1
 
         except ValueError:
             print("❌ Input tidak valid. Kamu harus memasukkan angka.")
             chance += 1
 
-            if chance > max_chance:
-                print (f"Anda telah melakukan percobaan {max_chance} kali, coba ulangi beberapa saat lagi")    
-                break    
+        if chance > max_chance:
+            print (f"Anda telah melakukan percobaan {max_chance} kali, coba ulangi beberapa saat lagi")    
+            break    
 
-def check_balance():
-    convert_balance = convert_uang(balance)
+def check_balance(user):
+    convert_balance = convert_uang(user['balance'])
     print(f"Saldo Anda saat ini adalah: {convert_balance}")
     time.sleep(2)
 
 def deposit(amount):
-    global balance
     if amount > 0:
         balance += amount
         convert_amount = convert_uang(amount)
@@ -131,7 +137,6 @@ def deposit(amount):
 
 
 def withdraw(amount):
-    global balance 
     if 0 < amount <= balance :
         balance -= amount
         convert_amount = convert_uang(amount)
@@ -142,7 +147,6 @@ def withdraw(amount):
     time.sleep(1.8)
 
 def convert_uang(angka):
-    global balance
     hasil_awal = f"Rp {angka:,.0f}"
     hasil_akhir = hasil_awal.replace(',', '.')
 
@@ -150,5 +154,7 @@ def convert_uang(angka):
 
 # --- Menjalankan Program ---
 if __name__ == "__main__":
-    # if login():
-        main()
+    database_users = load_data()
+    current_user = login(database_users)
+    if current_user is not None:
+        main_menu(current_user, database_users)

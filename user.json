@@ -1,6 +1,14 @@
-{
-    "nama": "Adi Jaya Wibawa",
-    "akun_bank": 123123123123,
-    "pin": 123456,
-    "balance": 0
-}
+[
+    {
+        "nama": "Adi Jaya Wibawa",
+        "akun_bank": 123,
+        "pin": 123456,
+        "balance": 0
+    },
+    {
+        "nama": "Budi Josjis",
+        "akun_bank": 124,
+        "pin": 123456,
+        "balance": 1000
+    }
+]
