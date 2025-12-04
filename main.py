@@ -4,6 +4,9 @@ import os
 
 file_json = 'user.json'
 
+# ==========================================
+# 1. BAGIAN DATA (Load & Save)
+# ==========================================
 def load_data():
     if not os.path.exists(file_json):
         return []
@@ -13,68 +16,20 @@ def load_data():
     except (json.JSONDecodeError, FileNotFoundError):
         return []
 
-    
 
-def main_menu(current_user, database_users):
-    counter_spam = 0
-    max_spam = 3
-    print(f""" 
-========================================|
-Selamat Datang di Simulasi ATM Sederhana|
-========================================|
-""")
-    while True:
-        print("\nMenu:")
-        print("""
-1. Cek Saldo
-2. Setor Tunai
-3. Tarik Tunai
-4. Keluar
-""")
-        try:
-            choice = input("Pilih opsi (1-4): ")
-            choice_convert = int(choice)
+# ==========================================
+# 2. BAGIAN HELPER
+# ==========================================
+def convert_uang(angka):
+    hasil_awal = f"Rp {angka:,.0f}"
+    hasil_akhir = hasil_awal.replace(',', '.')
 
-            # Mendeklarasikan agar opsi 1 dan 4 mereset counter spam menjadi 0, agar tidak dihitung kemudian menjadi 1 lagi.
-            if 1<= choice_convert <= 4:
-                counter_spam = 0
-
-                if choice_convert == 1: #jika pilih angka "1", maka akan masuk ke fungsi check_balance
-                    check_balance(current_user, database_users)
-                elif choice_convert == 2: #jika pilih angka "2", maka bisa memasukkan nilai ke variabel amount, lalu nilai tersebut dibuat parameter, ketika fungsi deposit dijalankan.
-                    amount = int(input("Masukkan jumlah yang akan disetorkan dalam bentuk rupiah: "))
-                    deposit(amount)
-                elif choice_convert == 3:
-                    amount = int(input("Masukkan jumlah yang akan ditarik dalam bentuk rupiah: "))
-                    withdraw(amount)
-                elif choice_convert == 4:
-                    print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
-                    break
-            else :
-                print("❌ Pilihan tidak valid. Silahkan coba lagi.")
-                counter_spam += 1
-                print(f"Peringatan Spam {counter_spam}/{max_spam}")
-                time.sleep (0.8)
-
-            if counter_spam >= max_spam:
-                print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")
-                break
-
-        except ValueError :
-            print("❌ Input tidak valid. Kamu harus memasukkan angka.")
-            counter_spam += 1
-            print(f"Peringatan Spam: {counter_spam}/{max_spam}")
-            time.sleep (0.8)
-
-            if counter_spam >= max_spam:
-                print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")    
-                break    
-
-        except Exception as e:
-            print(f"⚠️ Terjadi kesalahan tak terduga: {e}")
-            break
+    return hasil_akhir
 
 
+# ==========================================
+# 3. BAGIAN AUTH (Login)
+# ==========================================
 def login(database_user):
     chance = 1
     max_chance = 3
@@ -118,8 +73,12 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
 
         if chance > max_chance:
             print (f"Anda telah melakukan percobaan {max_chance} kali, coba ulangi beberapa saat lagi")    
-            break    
+            break
+    return None
 
+# ==========================================
+# 4. BAGIAN TRANSAKSI (YANG DIPERBAIKI)
+# ==========================================
 def check_balance(user):
     convert_balance = convert_uang(user['balance'])
     print(f"Saldo Anda saat ini adalah: {convert_balance}")
@@ -146,11 +105,70 @@ def withdraw(amount):
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
     time.sleep(1.8)
 
-def convert_uang(angka):
-    hasil_awal = f"Rp {angka:,.0f}"
-    hasil_akhir = hasil_awal.replace(',', '.')
 
-    return hasil_akhir
+
+
+
+
+def main_menu(current_users, database_users):
+    counter_spam = 0
+    max_spam = 3
+    print(f""" 
+========================================|
+Selamat Datang di Simulasi ATM Sederhana|
+========================================|
+""")
+    while True:
+        print("\nMenu:")
+        print("""
+1. Cek Saldo
+2. Setor Tunai
+3. Tarik Tunai
+4. Keluar
+""")
+        try:
+            choice = input("Pilih opsi (1-4): ")
+            choice_convert = int(choice)
+
+            # Mendeklarasikan agar opsi 1 dan 4 mereset counter spam menjadi 0, agar tidak dihitung kemudian menjadi 1 lagi.
+            if 1<= choice_convert <= 4:
+                counter_spam = 0
+
+                if choice_convert == 1: #jika pilih angka "1", maka akan masuk ke fungsi check_balance
+                    check_balance(current_users)
+                elif choice_convert == 2: #jika pilih angka "2", maka bisa memasukkan nilai ke variabel amount, lalu nilai tersebut dibuat parameter, ketika fungsi deposit dijalankan.
+                    amount = int(input("Masukkan jumlah yang akan disetorkan dalam bentuk rupiah: "))
+                    deposit(amount)
+                elif choice_convert == 3:
+                    amount = int(input("Masukkan jumlah yang akan ditarik dalam bentuk rupiah: "))
+                    withdraw(amount)
+                elif choice_convert == 4:
+                    print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
+                    break
+            else :
+                print("❌ Pilihan tidak valid. Silahkan coba lagi.")
+                counter_spam += 1
+                print(f"Peringatan Spam {counter_spam}/{max_spam}")
+                time.sleep (0.8)
+
+            if counter_spam >= max_spam:
+                print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")
+                break
+
+        except ValueError :
+            print("❌ Input tidak valid. Kamu harus memasukkan angka.")
+            counter_spam += 1
+            print(f"Peringatan Spam: {counter_spam}/{max_spam}")
+            time.sleep (0.8)
+
+            if counter_spam >= max_spam:
+                print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")    
+                break    
+
+        except Exception as e:
+            print(f"⚠️ Terjadi kesalahan tak terduga: {e}")
+            break
+
 
 # --- Menjalankan Program ---
 if __name__ == "__main__":
