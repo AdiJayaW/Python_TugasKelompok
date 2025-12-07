@@ -3,12 +3,18 @@
         "nama": "Adi Jaya Wibawa",
         "akun_bank": 123,
         "pin": 123456,
-        "balance": 0
+        "balance": 2000
     },
     {
         "nama": "Budi Josjis",
         "akun_bank": 124,
         "pin": 123456,
-        "balance": 1000
+        "balance": 6000
+    },
+    {
+        "nama": "Jonathan Cepmek Fibo",
+        "akun_bank": 125,
+        "pin": 123456,
+        "balance": 1000000
     }
 ]

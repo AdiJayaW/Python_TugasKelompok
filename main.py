@@ -16,9 +16,15 @@ def load_data():
     except (json.JSONDecodeError, FileNotFoundError):
         return []
 
+def save_data(all_data):
+    try:
+        with open(file_json, 'w') as file:
+            json.dump(all_data, file, indent=4)
+    except Exception as e:
+        print (f"Gagal menyimpan data: {e}")
 
 # ==========================================
-# 2. BAGIAN HELPER
+# 2. BAGIAN BANTU BANTU
 # ==========================================
 def convert_uang(angka):
     hasil_awal = f"Rp {angka:,.0f}"
@@ -45,19 +51,21 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
 """)
     
             account_input = input(f"Masukkan Akun Bank kamu (3 digit) : ")
+            account_angka = int(account_input)
             if len(account_input) != 3:
                 print (f"Format Salah Akun Bank harus 3 digit")
                 time.sleep(0.8)
+                chance += 1
                 continue
 
-            password = input(f"Masukkan PIN ATM kamu (6 digit) : ")       
+            password = input(f"Masukkan PIN ATM kamu (6 digit) : ")
+            password_angka = int(password)       
             if len(password) != 6:
                 print (f"Format Salah Akun Bank harus 3 digit")
                 time.sleep(0.8)
+                chance += 1
                 continue 
 
-            account_angka = int(account_input)
-            password_angka = int(password)
 
             for user in database_user:
                 if user['akun_bank'] == account_angka and user['pin'] == password_angka:
@@ -66,10 +74,13 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
                     return user
             print("Akun atau Pin yang Anda masukkan salah, coba lagi")
             chance += 1
+            time.sleep(1)
+
 
         except ValueError:
             print("❌ Input tidak valid. Kamu harus memasukkan angka.")
             chance += 1
+            time.sleep(1)
 
         if chance > max_chance:
             print (f"Anda telah melakukan percobaan {max_chance} kali, coba ulangi beberapa saat lagi")    
@@ -77,29 +88,32 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
     return None
 
 # ==========================================
-# 4. BAGIAN TRANSAKSI (YANG DIPERBAIKI)
+# 4. BAGIAN TRANSAKSI 
 # ==========================================
 def check_balance(user):
     convert_balance = convert_uang(user['balance'])
     print(f"Saldo Anda saat ini adalah: {convert_balance}")
     time.sleep(2)
 
-def deposit(amount):
+def deposit(user, all_data, amount):
     if amount > 0:
-        balance += amount
+        user['balance'] += amount
+        save_data(all_data)
+
         convert_amount = convert_uang(amount)
-        convert_balance = convert_uang(balance)
+        convert_balance = convert_uang(user['balance'])
         print(f"Setor Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Deposit Gagal. Jumlah harus lebih dari 0.")
     time.sleep(1.8)
 
 
-def withdraw(amount):
-    if 0 < amount <= balance :
-        balance -= amount
+def withdraw(user, all_data, amount):
+    if 0 < amount <= user['balance'] :
+        user['balance'] -= amount
+        save_data(all_data)
         convert_amount = convert_uang(amount)
-        convert_balance = convert_uang(balance)
+        convert_balance = convert_uang(user['balance'])
         print(f"Tarik Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
@@ -138,10 +152,10 @@ Selamat Datang di Simulasi ATM Sederhana|
                     check_balance(current_users)
                 elif choice_convert == 2: #jika pilih angka "2", maka bisa memasukkan nilai ke variabel amount, lalu nilai tersebut dibuat parameter, ketika fungsi deposit dijalankan.
                     amount = int(input("Masukkan jumlah yang akan disetorkan dalam bentuk rupiah: "))
-                    deposit(amount)
+                    deposit(current_users, database_users, amount)
                 elif choice_convert == 3:
                     amount = int(input("Masukkan jumlah yang akan ditarik dalam bentuk rupiah: "))
-                    withdraw(amount)
+                    withdraw(current_users, database_users, amount)
                 elif choice_convert == 4:
                     print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
                     break
@@ -159,7 +173,7 @@ Selamat Datang di Simulasi ATM Sederhana|
             print("❌ Input tidak valid. Kamu harus memasukkan angka.")
             counter_spam += 1
             print(f"Peringatan Spam: {counter_spam}/{max_spam}")
-            time.sleep (0.8)
+            time.sleep (1)
 
             if counter_spam >= max_spam:
                 print (f"Anda telah melakukan percobaan {max_spam} kali, coba ulangi beberapa saat lagi")    
