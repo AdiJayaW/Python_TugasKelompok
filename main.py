@@ -119,11 +119,6 @@ def withdraw(user, all_data, amount):
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
     time.sleep(1.8)
 
-
-
-
-
-
 def main_menu(current_users, database_users):
     counter_spam = 0
     max_spam = 3
