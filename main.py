@@ -119,6 +119,73 @@ def withdraw(user, all_data, amount):
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
     time.sleep(1.8)
 
+def transfer (user, all_data):
+    while True:
+        akun_orang = input("Masukkan Nomor Rekening Tujuan : ")
+        try:
+            rekening_tujuan = int(akun_orang)
+        except ValueError:
+            print("Inputan harus Berupan angka")
+            return
+
+        penerima_ditemukan = None #Variabel untuk menyimpan data penerima jika ditemukan
+        for data_orang in all_data:
+            if data_orang['akun_bank'] == rekening_tujuan:
+                penerima_ditemukan = data_orang
+                break
+
+        if penerima_ditemukan:
+            if penerima_ditemukan['akun_bank'] == user['akun_bank']:
+                print("Gagal: Anda tidak bisa transfer ke rekening sendiri.")
+                continue
+            nama_penerima = penerima_ditemukan['nama']
+            print(f"Ditemukan: {nama_penerima}")
+            konfirmasi_akun = input("Apakah rekening ini benar? (yes/no): ").lower()
+
+            if konfirmasi_akun == 'yes' or konfirmasi_akun == 'y':
+                while True:
+
+                    nominal = input(f"Masukkan nominal transfer untuk {nama_penerima}: ")
+                    try :
+                        nominal = int(nominal)
+                    except:
+                        print("Nominal tidak valid (harus angka). Silakan input ulang.")
+                        continue # Kembali ke input nominal (Loop 2)
+                    nominal_convert = convert_uang(nominal)
+                    nominal_ask = input(f"Konfirmasi transfer sebesar {nominal_convert}? (y/n): ").lower()
+                    if nominal_ask == 'y' or nominal_ask == 'yes':
+                        # --- EKSEKUSI TRANSFER DISINI ---
+                        print("Transfer SEDANG DIPROSES...")
+                        # Logika pengurangan Saldo
+                        if user['balance'] >= nominal:
+                            user['balance'] -= nominal
+                            penerima_ditemukan['balance'] += nominal
+
+                            convert_balance = convert_uang(user['balance'])
+                            save_data(all_data)
+                            print(f"Transfer Berhasil! Sisa saldo anda: {convert_balance}")
+                            return
+                        else: 
+                            print(f"Saldo tidak cukup Sisa saldo anda: {convert_balance}")
+                        # ...
+                        print("Transfer BERHASIL.")
+                        return # Selesai, keluar dari fungsi transfer
+                    
+                    else:
+                        print("Konfirmasi dibatalkan. Silakan masukkan nominal yang benar.")
+                        # Karena tidak ada break/return, dia akan otomatis
+                        # mengulang Loop 2 (minta nominal lagi)
+                    time.sleep(2)
+            else:
+                print(f"Permintaan transfer dibatalkan, Silahkan coba lagi")
+                continue
+        else:
+            print(f"Nomor Rekening {rekening_tujuan} tidak ditemukan, silahkan coba lagi")
+            continue
+
+
+    
+
 def main_menu(current_users, database_users):
     counter_spam = 0
     max_spam = 3
@@ -130,20 +197,24 @@ Selamat Datang di Simulasi ATM Sederhana|
     while True:
         print("\nMenu:")
         print("""
+0. Keluar
 1. Cek Saldo
 2. Setor Tunai
 3. Tarik Tunai
-4. Keluar
+4. Transfer
 """)
         try:
-            choice = input("Pilih opsi (1-4): ")
+            choice = input("Pilih opsi (0-4): ")
             choice_convert = int(choice)
 
             # Mendeklarasikan agar opsi 1 dan 4 mereset counter spam menjadi 0, agar tidak dihitung kemudian menjadi 1 lagi.
-            if 1<= choice_convert <= 4:
+            if 0<= choice_convert <= 4:
                 counter_spam = 0
 
-                if choice_convert == 1: #jika pilih angka "1", maka akan masuk ke fungsi check_balance
+                if choice_convert == 0:
+                    print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
+                    break
+                elif choice_convert == 1: #jika pilih angka "1", maka akan masuk ke fungsi check_balance
                     check_balance(current_users)
                 elif choice_convert == 2: #jika pilih angka "2", maka bisa memasukkan nilai ke variabel amount, lalu nilai tersebut dibuat parameter, ketika fungsi deposit dijalankan.
                     amount = int(input("Masukkan jumlah yang akan disetorkan dalam bentuk rupiah: "))
@@ -152,8 +223,7 @@ Selamat Datang di Simulasi ATM Sederhana|
                     amount = int(input("Masukkan jumlah yang akan ditarik dalam bentuk rupiah: "))
                     withdraw(current_users, database_users, amount)
                 elif choice_convert == 4:
-                    print("Terima kasih telah menggunakan Layanan ATM Sederhana, Adios Mabroo!")
-                    break
+                    transfer(current_users, database_users)
             else :
                 print("❌ Pilihan tidak valid. Silahkan coba lagi.")
                 counter_spam += 1
