@@ -54,7 +54,7 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
             account_angka = int(account_input)
             if len(account_input) != 3:
                 print (f"Format Salah Akun Bank harus 3 digit")
-                time.sleep(0.8)
+                time.sleep(1)
                 chance += 1
                 continue
 
@@ -62,7 +62,7 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
             password_angka = int(password)       
             if len(password) != 6:
                 print (f"Format Salah Akun Bank harus 3 digit")
-                time.sleep(0.8)
+                time.sleep(1)
                 chance += 1
                 continue 
 
@@ -70,7 +70,7 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
             for user in database_user:
                 if user['akun_bank'] == account_angka and user['pin'] == password_angka:
                     print (f"\nLogin Berhasil Selamat datang {user['nama']}")
-                    time.sleep(0.9)
+                    time.sleep(1)
                     return user
             print("Akun atau Pin yang Anda masukkan salah, coba lagi")
             chance += 1
@@ -93,7 +93,7 @@ Silahkan Masukkan Akun Bank Beserta Pinnya
 def check_balance(user):
     convert_balance = convert_uang(user['balance'])
     print(f"Saldo Anda saat ini adalah: {convert_balance}")
-    time.sleep(2)
+    time.sleep(1)
 
 def deposit(user, all_data, amount):
     if amount > 0:
@@ -105,7 +105,7 @@ def deposit(user, all_data, amount):
         print(f"Setor Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Deposit Gagal. Jumlah harus lebih dari 0.")
-    time.sleep(1.8)
+    time.sleep(1)
 
 
 def withdraw(user, all_data, amount):
@@ -117,68 +117,92 @@ def withdraw(user, all_data, amount):
         print(f"Tarik Tunai: {convert_amount}. Update Saldo: {convert_balance}")
     else:
         print("Penarikan Gagal. Periksa jumlah yang Anda masukkan dan saldo Anda.")
-    time.sleep(1.8)
+    time.sleep(1)
 
 def transfer (user, all_data):
     while True:
-        akun_orang = input("Masukkan Nomor Rekening Tujuan : ")
         try:
-            rekening_tujuan = int(akun_orang)
-        except ValueError:
-            print("Inputan harus Berupan angka")
-            return
 
-        penerima_ditemukan = None #Variabel untuk menyimpan data penerima jika ditemukan
-        for data_orang in all_data:
-            if data_orang['akun_bank'] == rekening_tujuan:
-                penerima_ditemukan = data_orang
-                break
-
-        if penerima_ditemukan:
-            if penerima_ditemukan['akun_bank'] == user['akun_bank']:
-                print("Gagal: Anda tidak bisa transfer ke rekening sendiri.")
+            akun_orang = input("Masukkan Nomor Rekening Tujuan : ")
+            try:
+                rekening_tujuan = int(akun_orang)
+            except ValueError:
+                print("Inputan harus Berupan angka")
                 continue
-            nama_penerima = penerima_ditemukan['nama']
-            print(f"Ditemukan: {nama_penerima}")
-            konfirmasi_akun = input("Apakah rekening ini benar? (yes/no): ").lower()
 
-            if konfirmasi_akun == 'yes' or konfirmasi_akun == 'y':
+            penerima_ditemukan = None #Variabel untuk menyimpan data penerima jika ditemukan
+            for data_orang in all_data:
+                if data_orang['akun_bank'] == rekening_tujuan:
+                        penerima_ditemukan = data_orang
+                        break
+
+            if penerima_ditemukan:
+                if penerima_ditemukan['akun_bank'] == user['akun_bank']:
+                    print("Gagal: Anda tidak bisa transfer ke rekening sendiri.")
+                    time.sleep(1)
+                    continue
+                nama_penerima = penerima_ditemukan['nama']
+                rekening_penerima =penerima_ditemukan['akun_bank']
+                print(f"""
+KONFIRMASI TRANSFER
+Ke: {nama_penerima}
+Rek: {rekening_penerima}
+
+1. BENAR
+2. SALAH
+""")
                 while True:
+                    konfirmasi_akun = int(input("Masukkan Pilihan (1/2): "))
+                    if konfirmasi_akun == 1 :
+                        while True:
+                            nominal = input(f"Masukkan nominal transfer untuk {nama_penerima}: ")
+                            try :
+                                nominal = int(nominal)
+                            except:
+                                print("Nominal tidak valid (harus angka). Silakan input ulang.")
+                                continue # Kembali ke input nominal (Loop 2)
+                            nominal_convert = convert_uang(nominal)
+                            print(f"""
+KONFIRMASI TRANSFER
+Ke: {nama_penerima}
+Jumalah Transfer : {nominal_convert}
 
-                    nominal = input(f"Masukkan nominal transfer untuk {nama_penerima}: ")
-                    try :
-                        nominal = int(nominal)
-                    except:
-                        print("Nominal tidak valid (harus angka). Silakan input ulang.")
-                        continue # Kembali ke input nominal (Loop 2)
-                    nominal_convert = convert_uang(nominal)
-                    nominal_ask = input(f"Konfirmasi transfer sebesar {nominal_convert}? (y/n): ").lower()
-                    if nominal_ask == 'y' or nominal_ask == 'yes':
-                        # --- EKSEKUSI TRANSFER DISINI ---
-                        print("Transfer SEDANG DIPROSES...")
-                        # Logika pengurangan Saldo
-                        if user['balance'] >= nominal:
-                            user['balance'] -= nominal
-                            penerima_ditemukan['balance'] += nominal
+1. BENAR
+2. SALAH
+""")
+                            while True :
+                                try:
+                                    nominal_ask= int(input("Masukkan pilihan (1/2): "))
+                                    if nominal_ask == 1:
+                                        # --- EKSEKUSI TRANSFER DISINI ---
+                                        print("Transfer SEDANG DIPROSES...")
+                                        if user['balance'] >= nominal:
+                                            user['balance'] -= nominal
+                                            penerima_ditemukan['balance'] += nominal
 
-                            convert_balance = convert_uang(user['balance'])
-                            save_data(all_data)
-                            print(f"Transfer Berhasil! Sisa saldo anda: {convert_balance}")
-                            return
-                        else: 
-                            print(f"Saldo tidak cukup Sisa saldo anda: {convert_balance}")
-                        # ...
-                        print("Transfer BERHASIL.")
-                        return # Selesai, keluar dari fungsi transfer
-                    
-                    else:
-                        print("Konfirmasi dibatalkan. Silakan masukkan nominal yang benar.")
-                        # Karena tidak ada break/return, dia akan otomatis
-                        # mengulang Loop 2 (minta nominal lagi)
-                    time.sleep(2)
-            else:
-                print(f"Permintaan transfer dibatalkan, Silahkan coba lagi")
-                continue
+                                            convert_balance = convert_uang(user['balance'])
+                                            save_data(all_data)
+                                            print(f"Transfer Berhasil! Sisa saldo anda: {convert_balance}")
+                                            return
+                                        else:
+                                            convert_balance = convert_uang(user['balance'])
+                                            print(f"Saldo tidak cukup Sisa saldo anda: {convert_balance}")
+                                        # ...
+                                        print("Transfer BERHASIL.")
+                                        return # Selesai, keluar dari fungsi transfer
+                                    elif nominal_ask == 2:
+                                        print("Konfirmasi dibatalkan. Silakan masukkan nominal yang benar.")
+                                        break
+                                    else:
+                                        print("Pilihan salah. Hanya 1 atau 2.")
+                                        continue
+                                except ValueError:
+                                    print("Error: Masukkan angka saja!")
+                    elif konfirmasi_akun == 2:
+                        print(f"Permintaan transfer dibatalkan, Silahkan coba lagi")
+                        break
+        except ValueError:
+            print("Input salah. Masukkan angka 1 atau 2.")
         else:
             print(f"Nomor Rekening {rekening_tujuan} tidak ditemukan, silahkan coba lagi")
             continue
@@ -226,8 +250,6 @@ Selamat Datang di Simulasi ATM Sederhana|
                     transfer(current_users, database_users)
             else :
                 print("❌ Pilihan tidak valid. Silahkan coba lagi.")
-                counter_spam += 1
-                print(f"Peringatan Spam {counter_spam}/{max_spam}")
                 time.sleep (0.8)
 
             if counter_spam >= max_spam:
